@@ -1,5 +1,9 @@
-Uninstall adapt-contrib-tutor. Add to components.hbs:
+# adapt-inline-feedback
 
+Display question feedback in situ rather than in a popup ([adapt-contrib-tutor]()).
+
+Uninstall [adapt-contrib-tutor](). Add to components.hbs:
+```
 <div class="{{_component}}-feedback component-feedback">
     <div class="{{_component}}-feedback-title">
         {{#if feedbackTitle}}
@@ -13,4 +17,4 @@ Uninstall adapt-contrib-tutor. Add to components.hbs:
         {{/if}}
     </div>
 </div>
-
+```
