@@ -22,3 +22,11 @@ Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](
     </div>
 </div>
 ```
+N.B. if using [cgkineo/adapt-contrib-confidenceSlider]() ```showFeedback``` must not be overridden. Instead, override ```setupFeedback```:
+
+```
+setupFeedback: function() {
+    this.model.set('feedbackTitle', this.model.get('title'));
+    this.model.set('feedbackMessage', this.getFeedbackString());
+}
+```
