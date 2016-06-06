@@ -2,7 +2,11 @@
 
 Display question feedback in situ rather than in a popup ([adapt-contrib-tutor]()).
 
-Uninstall [adapt-contrib-tutor](). Add to components.hbs:
+##Installation
+
+* Download into ``src/extensions`` folder
+* Uninstall [adapt-contrib-tutor]().
+* Add to components.hbs:
 ```
 <div class="{{_component}}-feedback component-feedback">
     <div class="{{_component}}-feedback-title">
