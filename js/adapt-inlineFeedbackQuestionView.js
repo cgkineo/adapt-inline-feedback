@@ -29,7 +29,14 @@ define([
 
     			this.$('.'+this.model.get('_component')+'-feedback-message').html(this.model.get('feedbackMessage')).a11y_text();
 
-    			Adapt.scrollTo('.'+this.model.get('_id')+' .'+this.model.get('_component')+'-feedback', {duration:500});
+    			_.delay(_.bind(function() {
+                    var block = this.model.getParent();
+                    var selector = '.' + this.model.get('_id') + ' .' + this.model.get('_component') + '-feedback';
+                    if (block.has('_trickle') && block.get('_trickle')._isEnabled) {
+                        selector = '.' + block.get('_id') + ' .trickle-button-component';
+                    }
+                    Adapt.scrollTo(selector, { duration: 500 });
+                }, this), 250);
             }
 		}
     };
