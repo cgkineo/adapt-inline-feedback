@@ -6,13 +6,16 @@ define([
     var InlineFeedbackComponentView = {
         postRender: function() {
             // shuffle feedback down DOM
-            this.$('.' + this.model.get('_component') + '-inner').append(this.$('.' + this.model.get('_component') + '-feedback'));
+            this.$('.component-inner').append(this.$('.' + this.model.get('_component') + '-feedback'));
 
             QuestionView.prototype.postRender.call(this);
 
             if (this.model.get('_isSubmitted')) {
-                this.$('.' + this.model.get('_component') + '-feedback').addClass('show-feedback');
+                this.$('.' + this.model.get('_component') + '-feedback').removeClass('display-none');
                 this.$('.' + this.model.get('_component') + '-feedback-title').addClass('component-feedback-title');
+            }
+            else {
+                this.$('.' + this.model.get('_component') + '-feedback').addClass('display-none');
             }
         },
 
@@ -21,7 +24,7 @@ define([
 
             if (this.model.get('_canShowFeedback')) {
 
-                this.$('.' + this.model.get('_component') + '-feedback').addClass('show-feedback');
+                this.$('.' + this.model.get('_component') + '-feedback').removeClass('display-none');
 
                 this.$('.' + this.model.get('_component') + '-feedback-title')
                     .html(this.model.get('feedbackTitle')).a11y_text()
