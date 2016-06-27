@@ -27,7 +27,7 @@ define([
                     .html(this.model.get('feedbackTitle')).a11y_text()
                     .addClass('component-feedback-title');
 
-                this.$('.' + this.model.get('_component') + '-feedback-message').html(feedbackMessage).a11y_text();
+                this.$('.' + this.model.get('_component') + '-feedback-message').html(this.model.get('feedbackMessage')).a11y_text();
 
                 Adapt.trigger('trickle:resize');
 
