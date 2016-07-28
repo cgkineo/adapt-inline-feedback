@@ -1,6 +1,6 @@
 # adapt-inline-feedback
 
-Display question feedback in situ rather than in a popup ([adapt-contrib-tutor]()).
+Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](adaptlearning/adapt-contrib-tutor)).
 
 ##Installation
 
@@ -22,7 +22,7 @@ Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](
     </div>
 </div>
 ```
-N.B. if using [cgkineo/adapt-contrib-confidenceSlider]() ```showFeedback``` must not be overridden. Instead, override ```setupFeedback```:
+N.B. if using [adapt-contrib-confidenceSlider](cgkineo/adapt-contrib-confidenceSlider) ```showFeedback``` must not be overridden. Instead, override ```setupFeedback```:
 
 ```
 setupFeedback: function() {
@@ -31,4 +31,4 @@ setupFeedback: function() {
 }
 ```
 
-If used with [adaptlearning/adapt-contrib-trickle](), trickle must listen to _isComplete rather than _isInteractionComplete (see trickle documentation).
+If used with [adapt-contrib-trickle](adaptlearning/adapt-contrib-trickle), trickle must listen to _isComplete rather than _isInteractionComplete (see trickle documentation).
