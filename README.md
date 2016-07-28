@@ -30,3 +30,5 @@ setupFeedback: function() {
     this.model.set('feedbackMessage', this.getFeedbackString());
 }
 ```
+
+If used with [adaptlearning/adapt-contrib-trickle](), trickle must listen to _isComplete rather than _isInteractionComplete (see trickle documentation).
