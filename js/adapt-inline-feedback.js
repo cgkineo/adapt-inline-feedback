@@ -7,7 +7,9 @@ define([
     var QuestionViewInitialize = QuestionView.prototype.initialize;
 
     QuestionView.prototype.initialize = function(options) {
-        _.extend(this, InlineFeedbackQuestionView);
+    	if (this.model.get('_canShowFeedback')) {
+        	_.extend(this, InlineFeedbackQuestionView);
+    	}
 
         return QuestionViewInitialize.apply(this, arguments);
     };

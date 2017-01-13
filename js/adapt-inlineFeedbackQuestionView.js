@@ -6,7 +6,7 @@ define([
     var InlineFeedbackComponentView = {
         postRender: function() {
             // shuffle feedback down DOM
-            this.$('.component-inner').append(this.$('.' + this.model.get('_component') + '-feedback'));
+            this.$('.' + this.model.get('_component') + '-inner').append(this.$('.' + this.model.get('_component') + '-feedback'));
 
             QuestionView.prototype.postRender.call(this);
 
@@ -26,6 +26,8 @@ define([
                 this.$('.' + this.model.get('_component') + '-feedback-title')
                     .html(this.model.get('feedbackTitle')).a11y_text()
                     .addClass('component-feedback-title');
+
+                $("#a11y-focuser")[0].focus();
 
                 this.$('.' + this.model.get('_component') + '-feedback-message').html(this.model.get('feedbackMessage')).a11y_text();
 
