@@ -2,7 +2,7 @@
 
 Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](https://github.com/adaptlearning/adapt-contrib-tutor)).
 
-##Installation
+## Installation
 
 * Download into ``src/extensions`` folder
 * Uninstall [adapt-contrib-tutor]()
