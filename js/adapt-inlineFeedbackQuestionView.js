@@ -66,6 +66,9 @@ define([
             }
         },
 
+        // we override this function so that we can separate the calls that set _isInteractionComplete and _isComplete
+        // this allows us to set _isComplete after the feedback is shown and scrolling is finished (i.e. when the layout is stable)
+        // in turn this allows trickle (using "_completionAttribute":"_isComplete") to behave correctly with the stable layout
         checkQuestionCompletion: function() {
 
             var isComplete = false;
@@ -85,7 +88,7 @@ define([
         onScrolledToFeedback:function() {
             this.setCompletionStatus();
             
-            // we need to kick PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
+            // we need to kick some versions of PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
 
             var parentPage = this.model.findAncestor('contentObjects');
 
