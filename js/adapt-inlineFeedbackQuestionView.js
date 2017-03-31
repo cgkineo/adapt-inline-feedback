@@ -52,9 +52,15 @@ define([
                 _.delay(_.bind(function() {
                     
                     var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
+                    var offset = -$(".navigation").outerHeight();
+
+                    if (this.model.get('_feedback')._onScrollToAlignToBottom) {
+                        selector = '.' + this.model.get('_id') + ' .' + this.model.get('_component') + '-feedback';
+                        offset = -($(window).height() - this.$('.' + this.model.get('_component') + '-feedback').outerHeight());
+                    }
 
                     this.listenToOnce(Adapt, 'page:scrolledTo', this.onScrolledToFeedback);
-                    this.scrollTo(selector, { duration: 500 });
+                    this.scrollTo(selector, { duration: 500, offset:{top:offset} });
                     
                 }, this), 250);
             }
