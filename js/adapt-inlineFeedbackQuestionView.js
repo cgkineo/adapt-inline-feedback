@@ -86,7 +86,9 @@ define([
         },
 
         onScrolledToFeedback:function() {
-            this.setCompletionStatus();
+            if (this.model.get('_isCorrect') || this.model.get('_attemptsLeft') === 0) {
+                this.setCompletionStatus();
+            }
             
             // we need to kick some versions of PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
 
