@@ -5,27 +5,48 @@ define([
 
     var InlineFeedbackComponentView = {
         postRender: function() {
-            // shuffle feedback down DOM
-            this.$('.component-inner').append(this.$('.' + this.model.get('_component') + '-feedback'));
+            // position feedback after component-widget if applicable
+            if (this.$('.component-feedback').length > 0) {
+                this.$('.component-inner').append(this.$('.component-feedback'));
+            }
 
             QuestionView.prototype.postRender.call(this);
 
             if (this.model.get('_isSubmitted')) {
-                this.$('.' + this.model.get('_component') + '-feedback').addClass('show-feedback');
-                this.$('.' + this.model.get('_component') + '-feedback-title').addClass('component-feedback-title');
+                this.getFBElement().addClass('show-feedback');
 
                 this.populateFeedback();
             }
         },
 
+        getFBSelector:function() {
+            var isParentBlock = this.$('.component-feedback').length == 0;
+            var m = isParentBlock ? this.model.getParent() : this.model;
+            return '.' + m.get('_id') + ' .component-feedback';
+        },
+
+        getFBElement:function(selector) {
+            var $fb = $(this.getFBSelector());
+
+            return selector ? $(selector, $fb) : $fb;
+        },
+
         populateFeedback:function() {
-            var genericTitle = Adapt.course.get('_globals')._extensions._inlineFeedback.feedbackTitle;
+            var $feedbackMessage = this.getFBElement('.component-feedback-content');
 
-            this.$('.' + this.model.get('_component') + '-feedback-title')
-                .html(genericTitle || this.model.get('feedbackTitle')).a11y_text()
-                .addClass('component-feedback-title');
+            $feedbackMessage.html(this.model.get('feedbackMessage'));
 
-            this.$('.' + this.model.get('_component') + '-feedback-message').html(this.model.get('feedbackMessage')).a11y_text();
+            if(!this.model.get('feedbackImage')) {
+                this.getFBElement('.component-feedback-graphic').css('display', 'none');
+                $feedbackMessage.css('width', 'auto');
+                return;
+            }
+
+            this.getFBElement('.component-feedback-graphic img').attr({ 'src': this.model.get('feedbackImage') });
+
+            if(this.model.get('feedbackImageAlt')) {
+                this.getFBElement('.component-feedback-graphic img').attr({ 'aria-label': this.model.get('feedbackImageAlt')});
+            }
         },
 
         showFeedback: function() {
@@ -33,42 +54,34 @@ define([
 
             if (this.model.get('_canShowFeedback')) {
 
-                this.$('.' + this.model.get('_component') + '-feedback').addClass('show-feedback');
+                this.getFBElement().addClass('show-feedback');
 
                 this.populateFeedback();
 
                 var anchorSelector = '.' + this.model.get('_id') + ' .feedback-anchor';
-                var feedbackSelector = '.' + this.model.get('_id') + ' .' + this.model.get('_component') + '-feedback';
+                var feedbackSelector = this.getFBSelector();
 
                 // now target a focusable element and focus immediately (a11y_focus defers)...
 
                 // try to focus accessible feedback text if applicable
-                if ($(feedbackSelector + ' [tabindex]').length > 0) $(feedbackSelector + ' [tabindex]').focusNoScroll();
-                // else try to focus a feedback anchor if present
-                else if ($(anchorSelector).length > 0) $(anchorSelector).focusNoScroll();
-                // else place focus in a safe place
-                else $('#a11y-focuser').focusNoScroll();
+                if ($(feedbackSelector).length > 0) {
+                    $(feedbackSelector).a11y_focus();
+                } else if ($(anchorSelector).length > 0) { // else try to focus a feedback anchor if present
+                    $(anchorSelector).a11y_focus();
+                } else {// else place focus in a safe place
+                    $('#a11y-focuser').focus();
+                }
 
-                _.delay(_.bind(function() {
-                    
-                    var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
-                    var offset = -$(".navigation").outerHeight();
-
-                    if (this.model.get('_feedback')._onScrollToAlignToBottom) {
-                        selector = '.' + this.model.get('_id') + ' .' + this.model.get('_component') + '-feedback';
-                        offset = -($(window).height() - this.$('.' + this.model.get('_component') + '-feedback').outerHeight());
-                    }
-
+                _.delay(function() {
                     this.listenToOnce(Adapt, 'page:scrolledTo', this.onScrolledToFeedback);
-                    this.scrollTo(selector, { duration: 500, offset:{top:offset} });
-                    
-                }, this), 250);
+
+                    var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
+                    Adapt.scrollTo(selector, { duration: 500 });
+
+                }.bind(this), 250);
             }
         },
 
-        // we override this function so that we can separate the calls that set _isInteractionComplete and _isComplete
-        // this allows us to set _isComplete after the feedback is shown and scrolling is finished (i.e. when the layout is stable)
-        // in turn this allows trickle (using "_completionAttribute":"_isComplete") to behave correctly with the stable layout
         checkQuestionCompletion: function() {
 
             var isComplete = false;
@@ -82,15 +95,12 @@ define([
                 this.model.set('_isInteractionComplete', true);
                 this.$('.component-widget').addClass('complete show-user-answer');
             }
-
         },
 
         onScrolledToFeedback:function() {
-            if (this.model.get('_isCorrect') || this.model.get('_attemptsLeft') === 0) {
-                this.setCompletionStatus();
-            }
-            
-            // we need to kick some versions of PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
+            this.setCompletionStatus();
+
+            // we need to kick PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
 
             var parentPage = this.model.findAncestor('contentObjects');
 
@@ -98,51 +108,11 @@ define([
                 // if all page components now complete wait for _isComplete to propagate to page then tell PLP to update
                 parentPage.once('change:_isComplete', function() {
                     Adapt.trigger('pageLevelProgress:update');
-                })
+                });
             } else {
                 // otherwise update PLP as normal
                 Adapt.trigger('pageLevelProgress:update');
             }
-        },
-
-        // this function is Adapt.scrollTo but with the a11y_focus line commented
-        // if we are scrolling to a feedback anchor we do not wish to focus it!
-        scrollTo:function(selector, settings) {
-            // Get the current location - this is set in the router
-            var location = (Adapt.location._contentType) ?
-                Adapt.location._contentType : Adapt.location._currentLocation;
-            // Trigger initial scrollTo event
-            Adapt.trigger(location+':scrollTo', selector);
-            //Setup duration variable passed upon arguments
-            var settings = (settings || {});
-            var disableScrollToAnimation = Adapt.config.has('_disableAnimation') ? Adapt.config.get('_disableAnimation') : false;
-            if (disableScrollToAnimation) {
-                settings.duration = 0;
-            }
-            else if (!settings.duration) {
-                settings.duration = $.scrollTo.defaults.duration;
-            }
-
-            var navigationHeight = $(".navigation").outerHeight();
-
-            if (!settings.offset) settings.offset = { top: -navigationHeight, left: 0 };
-            if (settings.offset.top === undefined) settings.offset.top = -navigationHeight;
-            if (settings.offset.left === undefined) settings.offset.left = 0;
-
-            if (settings.offset.left === 0) settings.axis = "y";
-
-            if (Adapt.get("_canScroll") !== false) {
-            // Trigger scrollTo plugin
-            $.scrollTo(selector, settings);
-            }
-
-            // Trigger an event after animation
-            // 300 milliseconds added to make sure queue has finished
-            _.delay(function() {
-                // $(selector).a11y_focus();
-                Adapt.trigger(location+':scrolledTo', selector);
-            }, settings.duration+300);
-
         }
     };
 
