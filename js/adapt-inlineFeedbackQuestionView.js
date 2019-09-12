@@ -7,8 +7,8 @@ define([
 
     postRender: function() {
       // position feedback after component-widget if applicable
-      if (this.$('.component-feedback').length > 0) {
-        this.$('.component-inner').append(this.$('.component-feedback'));
+      if (this.$('.component__feedback').length > 0) {
+        this.$('.component__inner').append(this.$('.component__feedback'));
       }
 
       QuestionView.prototype.postRender.call(this);
@@ -21,9 +21,9 @@ define([
     },
 
     getFBSelector:function() {
-      var isParentBlock = this.$('.component-feedback').length == 0;
+      var isParentBlock = this.$('.component__feedback').length == 0;
       var m = isParentBlock ? this.model.getParent() : this.model;
-      return '.' + m.get('_id') + ' .component-feedback';
+      return '.' + m.get('_id') + ' .component__feedback';
     },
 
     getFBElement:function(selector) {
@@ -33,20 +33,20 @@ define([
     },
 
     populateFeedback:function() {
-      var $feedbackMessage = this.getFBElement('.component-feedback-content');
+      var $feedbackMessage = this.getFBElement('.component__feedback-content');
 
       $feedbackMessage.html(this.model.get('feedbackMessage'));
 
       if (!this.model.get('feedbackImage')) {
-        this.getFBElement('.component-feedback-graphic').css('display', 'none');
+        this.getFBElement('.component__feedback-image-container').css('display', 'none');
         $feedbackMessage.css('width', 'auto');
         return;
       }
 
-      this.getFBElement('.component-feedback-graphic img').attr({ 'src': this.model.get('feedbackImage') });
+      this.getFBElement('.component__feedback-image').attr({ 'src': this.model.get('feedbackImage') });
 
       if(this.model.get('feedbackImageAlt')) {
-        this.getFBElement('.component-feedback-graphic img').attr({ 'aria-label': this.model.get('feedbackImageAlt')});
+        this.getFBElement('.component__feedback-image').attr({ 'aria-label': this.model.get('feedbackImageAlt')});
       }
     },
 
@@ -94,7 +94,7 @@ define([
       if (isComplete) {
         // trickle, if used, must be set to listen for _isComplete
         this.model.set('_isInteractionComplete', true);
-        this.$('.component-widget').addClass('complete show-user-answer');
+        this.$('.component__widget').addClass('is-complete show-user-answer');
       }
     },
 

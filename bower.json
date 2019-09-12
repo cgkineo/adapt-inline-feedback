@@ -1,10 +1,10 @@
 {
   "name": "adapt-inline-feedback",
-  "version": "2.1.0",
-  "framework": ">=4",
+  "version": "3.0.0",
+  "framework": ">=5",
   "homepage": "https://github.com/cgkineo/adapt-inline-feedback",
-  "displayName" : "Inline Feedback",
   "extension" : "inlineFeedback",
+  "displayName" : "Inline Feedback",
   "description": "An extension to display question feedback in situ",
   "main": "/js/adapt-inline-feedback.js",
   "keywords": [
