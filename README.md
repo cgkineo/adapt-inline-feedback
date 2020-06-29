@@ -9,8 +9,8 @@ Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](
 * Add to components.hbs:
 
 ```
-<div class="component__feedback">
-  <div class="component__feedback-inner">
+<div class="component__feedback inline__feedback">
+  <div class="component__feedback-inner inline__feedback-inner">
 
     <div class="component__feedback-content">
       <div class="component__feedback-title" tabindex="0" role="region"></div>
