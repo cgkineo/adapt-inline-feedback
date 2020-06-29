@@ -1,9 +1,9 @@
-.component.is-question {
-  .component__feedback {
-    display: none;
-  }
+// globally hide inline feedback
+.inline__feedback {
+  display: none;
+}
 
-  .component__widget.is-submitted ~ .component__feedback {
-    display: block;
-  }
+// display inline feedback for submitted questions
+.is-question .component__widget.is-submitted ~ .inline__feedback {
+  display: block;
 }
