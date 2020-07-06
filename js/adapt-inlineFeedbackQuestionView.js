@@ -18,7 +18,7 @@ define([
 
         this.populateFeedback();
       }
-      
+
       // apply component level class
       $('.' + this.model.get('_id')).addClass('has-inline-feedback');
     },

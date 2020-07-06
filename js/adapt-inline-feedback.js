@@ -1,6 +1,6 @@
 define([
-  'coreJS/adapt',
-  'coreViews/questionView',
+  'core/js/adapt',
+  'core/js/views/questionView',
   './adapt-inlineFeedbackQuestionView'
 ], function(Adapt, QuestionView, InlineFeedbackQuestionView) {
 
