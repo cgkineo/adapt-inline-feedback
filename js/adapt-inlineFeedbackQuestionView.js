@@ -15,11 +15,11 @@ define([
 
       QuestionView.prototype.postRender.call(this);
 
-      if (this.model.get('_isSubmitted')) {
-        this.getFBElement().addClass('show-feedback');
+      if (!this.model.get('_isSubmitted')) return;
 
-        this.populateFeedback();
-      }
+      this.getFBElement().addClass('show-feedback');
+
+      this.populateFeedback();
     },
 
     getFBSelector:function() {
@@ -55,34 +55,33 @@ define([
     showFeedback: function() {
       QuestionView.prototype.showFeedback.call(this);
 
-      if (this.model.get('_canShowFeedback')) {
+      if (!this.model.get('_canShowFeedback')) return;
 
-        this.getFBElement().addClass('show-feedback');
+      this.getFBElement().addClass('show-feedback');
 
-        this.populateFeedback();
+      this.populateFeedback();
 
-        var anchorSelector = '.' + this.model.get('_id') + ' .feedback-anchor';
-        var feedbackSelector = this.getFBSelector();
+      var anchorSelector = '.' + this.model.get('_id') + ' .feedback-anchor';
+      var feedbackSelector = this.getFBSelector();
 
-        // now target a focusable element and focus immediately (a11y_focus defers)...
+      // now target a focusable element and focus immediately (a11y_focus defers)...
 
-        // try to focus accessible feedback text if applicable
-        if ($(feedbackSelector).length > 0) {
-          $(feedbackSelector).a11y_focus();
-        } else if ($(anchorSelector).length > 0) { // else try to focus a feedback anchor if present
-          $(anchorSelector).a11y_focus();
-        } else {// else place focus in a safe place
-          $('#a11y-focuser').focus();
-        }
-
-        _.delay(function() {
-          this.listenToOnce(Adapt, 'page:scrolledTo', this.onScrolledToFeedback);
-
-          var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
-          Adapt.scrollTo(selector, { duration: 500 });
-
-        }.bind(this), 250);
+      // try to focus accessible feedback text if applicable
+      if ($(feedbackSelector).length > 0) {
+        $(feedbackSelector).a11y_focus();
+      } else if ($(anchorSelector).length > 0) { // else try to focus a feedback anchor if present
+        $(anchorSelector).a11y_focus();
+      } else {// else place focus in a safe place
+        $('#a11y-focuser').focus();
       }
+
+      _.delay(function() {
+        this.listenToOnce(Adapt, 'page:scrolledTo', this.onScrolledToFeedback);
+
+        var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
+        Adapt.scrollTo(selector, { duration: 500 });
+
+      }.bind(this), 250);
     },
 
     checkQuestionCompletion: function() {
