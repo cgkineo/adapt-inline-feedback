@@ -9,8 +9,9 @@ define([
       this.$el.addClass('has-inline-feedback');
 
       // position feedback after component-widget if applicable
-      if (this.$('.component__feedback').length > 0) {
-        this.$('.component__inner').append(this.$('.component__feedback'));
+      var $componentFeedback = this.$('.component__feedback');
+      if ($componentFeedback.length > 0) {
+        this.$('.component__inner').append($componentFeedback);
       }
 
       QuestionView.prototype.postRender.call(this);
@@ -23,7 +24,7 @@ define([
     },
 
     getFBSelector:function() {
-      var isParentBlock = this.$('.component__feedback').length == 0;
+      var isParentBlock = this.$('.component__feedback').length === 0;
       var m = isParentBlock ? this.model.getParent() : this.model;
       return '.' + m.get('_id') + ' .component__feedback';
     },
@@ -85,7 +86,6 @@ define([
     },
 
     checkQuestionCompletion: function() {
-
       var isComplete = false;
 
       if (this.model.get('_isCorrect') || this.model.get('_attemptsLeft') === 0) {
@@ -105,16 +105,16 @@ define([
       // we need to kick PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
 
       var parentPage = this.model.findAncestor('contentObjects');
-
-      if (parentPage.findDescendants('components').where({'_isAvailable': true, '_isOptional': false, '_isComplete':false}).length == 0) {
+      if (parentPage.findDescendantModels('components', { where: { _isAvailable: true, _isOptional: false, _isComplete: false} }).length === 0) {
         // if all page components now complete wait for _isComplete to propagate to page then tell PLP to update
         parentPage.once('change:_isComplete', function() {
           Adapt.trigger('pageLevelProgress:update');
         });
-      } else {
-        // otherwise update PLP as normal
-        Adapt.trigger('pageLevelProgress:update');
+        return;
       }
+
+      // otherwise update PLP as normal
+      Adapt.trigger('pageLevelProgress:update');
     }
   };
 
