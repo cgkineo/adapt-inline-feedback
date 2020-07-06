@@ -6,6 +6,8 @@ define([
   var InlineFeedbackComponentView = {
 
     postRender: function() {
+      this.$el.addClass('has-inline-feedback');
+
       // position feedback after component-widget if applicable
       if (this.$('.component__feedback').length > 0) {
         this.$('.component__inner').append(this.$('.component__feedback'));
@@ -18,9 +20,6 @@ define([
 
         this.populateFeedback();
       }
-
-      // apply component level class
-      $('.' + this.model.get('_id')).addClass('has-inline-feedback');
     },
 
     getFBSelector:function() {
