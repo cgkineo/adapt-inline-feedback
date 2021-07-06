@@ -3,119 +3,89 @@ define([
   'core/js/views/questionView'
 ], function(Adapt, QuestionView) {
 
-  var InlineFeedbackComponentView = {
+  const InlineFeedbackComponentView = {
 
-    postRender: function() {
+    postRender() {
       this.$el.addClass('has-inline-feedback');
-
-      // position feedback after component-widget if applicable
-      var $componentFeedback = this.$('.component__feedback');
-      if ($componentFeedback.length > 0) {
-        this.$('.component__inner').append($componentFeedback);
-      }
-
+      this.renderFeedbackContainer();
       QuestionView.prototype.postRender.call(this);
-
       if (!this.model.get('_isSubmitted')) return;
-
-      this.getFBElement().addClass('show-feedback');
-
       this.populateFeedback();
     },
 
-    getFBSelector:function() {
-      var isParentBlock = this.$('.component__feedback').length === 0;
-      var m = isParentBlock ? this.model.getParent() : this.model;
-      return '.' + m.get('_id') + ' .component__feedback';
+    renderFeedbackContainer() {
+      this.$('.component__inner').append(Handlebars.templates.inlineFeedback());
     },
 
-    getFBElement:function(selector) {
-      var $fb = $(this.getFBSelector());
-
-      return selector ? $(selector, $fb) : $fb;
-    },
-
-    populateFeedback:function() {
-      var $feedbackMessage = this.getFBElement('.component__feedback-content');
-
+    populateFeedback: function() {
+      const $feedbackMessage = this.$feedback('.component__feedback-content');
       $feedbackMessage.html(this.model.get('feedbackMessage'));
-
+      this.$feedback().addClass('show-feedback');
       if (!this.model.get('feedbackImage')) {
-        this.getFBElement('.component__feedback-image-container').css('display', 'none');
+        this.$feedback('.component__feedback-image-container').css('display', 'none');
         $feedbackMessage.css('width', 'auto');
         return;
       }
+      const $feedbackImage = this.$feedback('.component__feedback-image');
+      $feedbackImage.attr('src', this.model.get('feedbackImage'));
+      if (this.model.get('feedbackImageAlt')) $feedbackImage.attr('aria-label', this.model.get('feedbackImageAlt'));
+    },
 
-      this.getFBElement('.component__feedback-image').attr({ 'src': this.model.get('feedbackImage') });
-
-      if(this.model.get('feedbackImageAlt')) {
-        this.getFBElement('.component__feedback-image').attr({ 'aria-label': this.model.get('feedbackImageAlt')});
-      }
+    $feedback(selector) {
+      const isParentBlock = (this.$('.component__feedback').length === 0);
+      const model = isParentBlock ? this.model.getParent() : this.model;
+      const $feedback = $('.' + model.get('_id') + ' .component__feedback');
+      return selector ? $feedback.find(selector) : $feedback;
     },
 
     showFeedback: function() {
-      QuestionView.prototype.showFeedback.call(this);
-
-      if (!this.model.get('_canShowFeedback')) return;
-
-      this.getFBElement().addClass('show-feedback');
-
-      this.populateFeedback();
-
-      var anchorSelector = '.' + this.model.get('_id') + ' .feedback-anchor';
-      var feedbackSelector = this.getFBSelector();
-
-      // now target a focusable element and focus immediately (a11y_focus defers)...
-
-      // try to focus accessible feedback text if applicable
-      if ($(feedbackSelector).length > 0) {
-        $(feedbackSelector).a11y_focus();
-      } else if ($(anchorSelector).length > 0) { // else try to focus a feedback anchor if present
-        $(anchorSelector).a11y_focus();
-      } else {// else place focus in a safe place
-        $('#a11y-focuser').focus();
+      if (this.model.get('_canShowFeedback')) {
+        this.populateFeedback();
+        this.scrollToFeedback();
       }
-
-      _.delay(function() {
-        this.listenToOnce(Adapt, 'page:scrolledTo', this.onScrolledToFeedback);
-
-        var selector = this.$('.feedback-anchor').length > 0 ? anchorSelector : feedbackSelector;
-        Adapt.scrollTo(selector, { duration: 500 });
-
-      }.bind(this), 250);
+      QuestionView.prototype.showFeedback.call(this);
     },
 
     checkQuestionCompletion: function() {
-      var isComplete = false;
-
-      if (this.model.get('_isCorrect') || this.model.get('_attemptsLeft') === 0) {
-        isComplete = true;
-      }
-
-      if (isComplete) {
-        // trickle, if used, must be set to listen for _isComplete
-        this.model.set('_isInteractionComplete', true);
-        this.$('.component__widget').addClass('is-complete show-user-answer');
-      }
+      const isComplete = (this.model.get('_isCorrect') || this.model.get('_attemptsLeft') === 0);
+      if (!isComplete) return;
+      // trickle, if used, must be set to listen for _isComplete
+      this.model.set('_isInteractionComplete', true);
+      this.$('.component__widget').addClass('is-complete show-user-answer');
     },
 
-    onScrolledToFeedback:function() {
+    scrollToFeedback() {
+      const $anchor = this.$anchor();
+      const $feedback = this.$feedback();
+      const $target = $feedback.length ? $feedback : $anchor;
+      _.delay(() => {
+        $.scrollTo($target, {
+          offset: -($('.nav').outerHeight() + 100),
+          duration: 500,
+          onAfter: this.onScrolledToFeedback.bind(this)
+        });
+      }, 250);
+    },
+
+    $anchor() {
+      return $('.' + this.model.get('_id') + ' .feedback-anchor');
+    },
+
+    onScrolledToFeedback() {
       this.setCompletionStatus();
-
       // we need to kick PLP to update because we've changed the order of setting _isComplete/_isInteractionComplete
-
-      var parentPage = this.model.findAncestor('contentObjects');
-      if (parentPage.findDescendantModels('components', { where: { _isAvailable: true, _isOptional: false, _isComplete: false} }).length === 0) {
+      const parentPage = this.model.findAncestor('contentObjects');
+      if (parentPage.findDescendantModels('components', { where: { _isAvailable: true, _isOptional: false, _isComplete: false } }).length === 0) {
         // if all page components now complete wait for _isComplete to propagate to page then tell PLP to update
         parentPage.once('change:_isComplete', function() {
           Adapt.trigger('pageLevelProgress:update');
         });
         return;
       }
-
       // otherwise update PLP as normal
       Adapt.trigger('pageLevelProgress:update');
     }
+
   };
 
   return InlineFeedbackComponentView;

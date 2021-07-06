@@ -7,3 +7,29 @@
 .is-question .component__widget.is-submitted ~ .inline__feedback {
   display: block;
 }
+
+.component__feedback {
+  padding-top: 2em;
+  display: none;
+  &.show-feedback {
+    display: block;
+  }
+}
+
+.has-inline-feedback .btn__feedback {
+  display: none;
+}
+
+.has-inline-feedback .can-show-marking .btn__action, .has-inline-feedback.can-show-marking .btn__action {
+  margin-right: 4rem;
+}
+
+.has-inline-feedback .btn__action {
+  width: 100%;
+}
+
+.has-inline-feedback .btn__marking {
+  left: inherit;
+  right: 0.5rem;
+  transform: translate(0, -50%);
+}
