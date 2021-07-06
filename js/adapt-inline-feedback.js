@@ -1,6 +1,6 @@
 define([
   'core/js/views/questionView',
-  './adapt-inlineFeedbackQuestionView'
+  './inlineFeedbackQuestionView'
 ], function(QuestionView, InlineFeedbackQuestionView) {
 
   const QuestionViewInitialize = QuestionView.prototype.initialize;
