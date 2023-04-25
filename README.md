@@ -1,3 +1,5 @@
+# This repository is now deprecated and archived. Refer to https://github.com/adaptlearning/adapt_framework/issues/1469
+
 # adapt-inline-feedback
 
 Display question feedback in situ rather than in a popup ([adapt-contrib-tutor](https://github.com/adaptlearning/adapt-contrib-tutor)).
